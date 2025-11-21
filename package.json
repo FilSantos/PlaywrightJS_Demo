@@ -1,0 +1,13 @@
+{
+  "name": "playwright-cucumber-mbt",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "cucumber-js"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.0.0",
+    "@playwright/test": "^1.49.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0"
+  }
+}
