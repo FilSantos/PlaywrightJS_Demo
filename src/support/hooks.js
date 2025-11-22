@@ -8,7 +8,7 @@ Before({ tags: "@ui" }, async function () {
   try {
     this.browser = await chromium.launch({ headless: false });
   } catch (error) {
-    console.warn("Failed to launch with headless:false, retrying with headless:true", error);
+    // Fallback to headless mode if headful fails (e.g., in CI environments)
     this.browser = await chromium.launch({ headless: true });
   }
 
