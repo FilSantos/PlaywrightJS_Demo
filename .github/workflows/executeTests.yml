@@ -14,15 +14,15 @@ jobs:
         with:
           node-version: lts/*
 
-      # Get latest release tag
       - name: Get latest release tag
         id: get_release
         run: |
-          LATEST_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+          LATEST_TAG=$(gh release list --repo ${{ github.repository }} --limit 1 --json tagName --jq '.[0].tagName')
           echo "Latest release: $LATEST_TAG"
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       # Download the latest release assets
       - name: Download latest release
