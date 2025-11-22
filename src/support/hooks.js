@@ -1,23 +1,52 @@
-import { Before, After } from "@cucumber/cucumber";
+import { Before, After, AfterStep } from "@cucumber/cucumber";
 import { chromium, request } from "@playwright/test";
 
 //
-// HOOK PARA TESTES @ui
+// Test Hooks for @ui
 //
 Before({ tags: "@ui" }, async function () {
   this.browser = await chromium.launch({ headless: false });
-  this.context = await this.browser.newContext();
+
+  this.context = await this.browser.newContext({
+    recordVideo: {
+      dir: "videos/",
+      size: { width: 1280, height: 720 }
+    }
+  });
+
   this.page = await this.context.newPage();
+
 });
 
 After({ tags: "@ui" }, async function () {
+
+  // Get video path BEFORE closing the page
+  const videoPath = await this.page.video().path();
+
+  // Attach to the HTML report
+  await this.attach(`Video saved at:\n${videoPath}`, "text/plain");
+
+  console.log("Video path:", videoPath);
+
+  // Cleanup
   await this.page.close();
   await this.context.close();
   await this.browser.close();
 });
 
+
 //
-// HOOK PARA TESTES @api
+// Screenshot after each Step – only for @ui
+//
+AfterStep({ tags: "@ui" }, async function ({ pickleStep }) {
+
+  await takeScreenshot(this.page, this.attach);
+  //await takeScreenshotFile(this.page);
+
+});
+
+//
+// Test Hooks for @api
 //
 Before({ tags: "@api" }, async function () {
   this.api = await request.newContext();
@@ -26,3 +55,17 @@ Before({ tags: "@api" }, async function () {
 After({ tags: "@api" }, async function () {
   await this.api.dispose();
 });
+
+async function takeScreenshot(page, attach) {
+
+  const screenshot = await page.screenshot();
+  await attach(screenshot, "image/png"); // 👈 attach in HTML report
+
+}
+
+async function takeScreenshotFile(page) {
+
+  const filePath = `screenshots/${Date.now()}.png`; // 👈 Save in file
+  await page.screenshot({ path: filePath });
+  console.log("Screenshot file:", filePath);
+}
