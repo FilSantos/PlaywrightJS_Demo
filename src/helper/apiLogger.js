@@ -22,12 +22,12 @@ async logAll({ url, status, timeMs, body }) {
     });
 
     //save to folder in addition to folder requests with timestamp
-    this.requestsDir = path.join(process.cwd(), "requests");
-    if (!fs.existsSync(this.requestsDir)) {
-      fs.mkdirSync(this.requestsDir, { recursive: true });
-    }
-    const filePath = `requests/${Date.now()}.txt`;
-    fs.writeFileSync(filePath, fullLog, "utf-8");
+    //this.requestsDir = path.join(process.cwd(), "requests");
+    //if (!fs.existsSync(this.requestsDir)) {
+    //  fs.mkdirSync(this.requestsDir, { recursive: true });
+    //}
+    //const filePath = `requests/${Date.now()}.txt`;
+    //fs.writeFileSync(filePath, fullLog, "utf-8");
 
 
   }
