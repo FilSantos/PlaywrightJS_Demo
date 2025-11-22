@@ -71,7 +71,7 @@ jobs:
     - name: Upload all artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: full-artifacts
+        name: test-evidence
         path: |
           db-logs/**
           reports/**
