@@ -33,4 +33,14 @@ export class AmazonSearchPage {
     }
     return 0;
   }
+
+  async dismissContinueShoppingIfExists() {
+        // Verifica se o botão "Continue shopping" aparece
+    const continueBtn = this.page.locator("//button[text()='Continue shopping']");
+    if (await continueBtn.count() > 0) {
+      await continueBtn.click();
+      console.log("Clicked 'Continue shopping' button");
+    }
+  }
 }
+

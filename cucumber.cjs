@@ -17,7 +17,6 @@ module.exports = {
     ],
 
     // 👇 Set Parallel Execution
-    publishQuiet: true,
     parallel: 2,
 
   }

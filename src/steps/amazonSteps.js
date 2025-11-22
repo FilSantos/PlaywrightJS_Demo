@@ -5,6 +5,7 @@ import { AmazonSearchPage } from "../pages/AmazonSearchPage.js";
 Given("I open Amazon homepage", async function () {
   this.amazon = new AmazonSearchPage(this.page);
   await this.amazon.navigate();
+  await this.amazon.dismissContinueShoppingIfExists();
   
 });
 
