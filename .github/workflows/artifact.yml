@@ -68,18 +68,11 @@ jobs:
       - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
-          tag_name: "v${{ steps.get_version.outputs.version }}"
-          release_name: "Release v${{ steps.get_version.outputs.version }}"
+          tag_name: v1.0.0
+          release_name: Release v1.0.0
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
-      # Optionally upload artifacts to the release
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
-        with:
-          files: "**"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
