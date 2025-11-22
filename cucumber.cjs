@@ -18,7 +18,7 @@ module.exports = {
 
     // 👇 Set Parallel Execution
     parallel: 4,
-    retry: 1, 
+    //retry: 1, 
 
   }
 };
