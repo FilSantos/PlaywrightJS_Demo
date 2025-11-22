@@ -1,13 +1,6 @@
 import { Given, When, Then } from "@cucumber/cucumber";
 import assert from "assert";
-import { AmazonSearchPage } from "../pages/AmazonSearchPage.js";
-
-Given("I open Amazon homepage", async function () {
-  this.amazon = new AmazonSearchPage(this.page);
-  await this.amazon.navigate();
-  await this.amazon.dismissContinueShoppingIfExists();
-  
-});
+import { AmazonPage } from "../pages/AmazonPage.js";
 
 When("I search for {string}", async function (product) {
   await this.amazon.searchProduct(product);
