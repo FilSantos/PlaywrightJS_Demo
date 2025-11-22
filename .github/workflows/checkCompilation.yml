@@ -5,52 +5,21 @@ on:
 
 jobs:
   check-compilation:
-    timeout-minutes: 2
+    name: 'Check compilation'
     runs-on: ubuntu-latest
+    timeout-minutes: 2
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      options: --user 1001
+
     steps:
     - uses: actions/checkout@v5
+      with:
+        fetch-depth: 1
 
     - uses: actions/setup-node@v5
       with:
         node-version: lts/*
 
-    # NPM Cache to speed up installs
-    - name: Cache NPM dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.npm
-          node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-
-    # Install dependencies only if not in cache
-    - name: Install dependencies
-      run: npm ci
-
-    # Load Browsers cache from Playwright
-    - name: Cache Playwright browsers
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/ms-playwright
-        key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-playwright-
-
-    # Install browsers only if not in cache
-    - name: Install Playwright Browsers
-      run: |
-        if [ ! -d "~/.cache/ms-playwright" ]; then
-          npx playwright install --with-deps
-        else
-          echo "Playwright cache restored, skipping install"
-        fi
-
-    # Dry run - check compilation
     - name: Check compilation
-      run: |
-        echo "Checking Node dependencies..."
-        npm ci --dry-run
-        echo "Checking Playwright browsers..."
-        npx playwright install --with-deps --dry-run || echo "Browsers already installed"
+      run: npm ci --dry-run
