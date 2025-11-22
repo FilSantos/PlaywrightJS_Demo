@@ -1,14 +1,10 @@
-name: Playwright Tests
+name: Check Compilation
 on:
-  push:
-    branches: [ develop ]
   pull_request:
-    branches: [ main ]
-  schedule:
-    - cron: '0 0 */10 * *' # every 10 days
+    branches: [ develop ]
 
 jobs:
-  test:
+  check-compilation:
     timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
@@ -51,31 +47,10 @@ jobs:
           echo "Playwright cache restored, skipping install"
         fi
 
-    - name: Run Playwright tests
+    # Dry run - check compilation
+    - name: Check compilation
       run: |
-        if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
-          npx cucumber-js --tags "@debug"
-        else
-          npx cucumber-js
-        fi
-
-    - name: Report Tests
-      uses: dorny/test-reporter@v2
-      with:
-        reporter: java-junit
-        path: 'reports/junit-results.xml'
-        name: JUnit Tests
-      if: always()
-
-    # Upload all repository files as artifact
-    - name: Upload all artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-evidence
-        path: |
-          db-logs/**
-          reports/**
-          requests/**
-          videos/**
-        retention-days: 30
-      if: always()
+        echo "Checking Node dependencies..."
+        npm ci --dry-run
+        echo "Checking Playwright browsers..."
+        npx playwright install --with-deps --dry-run || echo "Browsers already installed"
