@@ -29,12 +29,8 @@ jobs:
 
     # Instala dependências apenas se não tiver cache
     - name: Install dependencies
-      run: |
-        if [ ! -d "node_modules" ]; then
-          npm ci
-        else
-          echo "Node modules cache restored, skipping npm ci"
-        fi
+      run: npm ci
+
 
     # Cache dos browsers do Playwright
     - name: Cache Playwright browsers
