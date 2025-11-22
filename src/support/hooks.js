@@ -23,15 +23,24 @@ Before({ tags: "@ui" }, async function () {
 
 });
 
-After({ tags: "@ui" }, async function () {
 
-  // Get video path BEFORE closing the page
-  const videoPath = await this.page.video().path();
+After({ tags: "@ui" }, async function ({ result }) {
+  
+  
+  if (result.status === "FAILED") {
+    // Get video path BEFORE closing the page
+    const videoPath = await this.page.video().path();
 
-  // Attach to the HTML report
-  await this.attach(`Video saved at:\n${videoPath}`, "text/plain");
+    // Attach to the HTML report
+    await this.attach(`Video saved at:\n${videoPath}`, "text/plain");
 
-  console.log("Video path:", videoPath);
+    console.log("Video path:", videoPath);
+  } else {
+
+    await takeScreenshot(this.page, this.attach);
+    //await takeScreenshotFile(this.page);
+    
+  }
 
   // Cleanup
   await this.page.close();
@@ -43,10 +52,11 @@ After({ tags: "@ui" }, async function () {
 //
 // Screenshot after each Step – only for @ui
 //
-AfterStep({ tags: "@ui" }, async function ({ pickleStep }) {
-
-  await takeScreenshot(this.page, this.attach);
-  //await takeScreenshotFile(this.page);
+AfterStep({ tags: "@ui" }, async function ({ pickleStep, result }) {
+  if (result?.status === "FAILED") {
+    await takeScreenshot(this.page, this.attach);
+    //await takeScreenshotFile(this.page);
+  }
 
 });
 
