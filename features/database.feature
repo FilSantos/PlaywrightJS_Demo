@@ -1,4 +1,4 @@
-Feature: PostgreSQL check
+Feature: Supabase Database Validation
 
   @db
   Scenario: Verify user Filipe exists in users table
