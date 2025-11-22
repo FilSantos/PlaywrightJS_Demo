@@ -12,7 +12,8 @@ module.exports = {
     format: [
       "progress",
       "json:./reports/report.json",
-      "html:reports/report.html" 
+      "html:reports/report.html",
+      "junit:reports/junit-results.xml"
     ],
 
     // 👇 Set Parallel Execution
