@@ -11,22 +11,22 @@ jobs:
       # Checkout the repository
       - uses: actions/checkout@v5
 
-      # Determine the version/tag automatically
-      - name: Get version from package.json
-        id: get_version
+      # Generate timestamp version
+      - name: Generate timestamp version
+        id: timestamp
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          # Format: yyMMddHHmmss
+          TIMESTAMP=$(date +'%y%m%d%H%M%S')
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+          echo "Generated timestamp: $TIMESTAMP"
 
       # Create GitHub release
       - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
-          tag_name: v1.0.0
-          release_name: Release v1.0.0
+          tag_name: v.${{ steps.timestamp.outputs.timestamp }}
+          release_name: Release v.${{ steps.timestamp.outputs.timestamp }}
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-
-
