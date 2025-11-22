@@ -5,7 +5,7 @@ on:
 
 jobs:
   Artifact_Generation:
-    timeout-minutes: 3
+    timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository
