@@ -5,7 +5,12 @@ import { chromium, request } from "@playwright/test";
 // Test Hooks for @ui
 //
 Before({ tags: "@ui" }, async function () {
-  this.browser = await chromium.launch({ headless: false });
+  try {
+    this.browser = await chromium.launch({ headless: false });
+  } catch (error) {
+    console.warn("Failed to launch with headless:false, retrying with headless:true", error);
+    this.browser = await chromium.launch({ headless: true });
+  }
 
   this.context = await this.browser.newContext({
     recordVideo: {
