@@ -1,5 +1,5 @@
 import { Before, After, AfterStep } from "@cucumber/cucumber";
-import { chromium, request } from "@playwright/test";
+import { chromium, webkit, devices, request } from "@playwright/test";
 
 //
 // Test Hooks for @ui
@@ -23,8 +23,29 @@ Before({ tags: "@ui" }, async function () {
 
 });
 
+//
+// Test Hooks for @mobile
+//
+Before({ tags: "@mobile" }, async function () {
+  const mobile = devices['iPad Pro 11 landscape'];
+  try {
+    this.browser = await webkit.launch({ headless: false });
+  } catch (error) {
+    // Fallback to headless mode if headful fails (e.g., in CI environments)
+    this.browser = await webkit.launch({ headless: true });
+  }
 
-After({ tags: "@ui" }, async function ({ result }) {
+  this.context = await this.browser.newContext({
+    ...mobile,
+    recordVideo: { dir: 'videos/', size: { width: 834, height: 1194 } },
+  });
+
+  this.page = await this.context.newPage();
+
+});
+
+
+After({ tags: "@ui or @mobile" }, async function ({ result }) {
   
   
   if (result.status === "FAILED") {
@@ -38,7 +59,6 @@ After({ tags: "@ui" }, async function ({ result }) {
   } else {
 
     await takeScreenshot(this.page, this.attach);
-    //await takeScreenshotFile(this.page);
     
   }
 
@@ -52,10 +72,9 @@ After({ tags: "@ui" }, async function ({ result }) {
 //
 // Screenshot after each Step – only for @ui
 //
-AfterStep({ tags: "@ui" }, async function ({ pickleStep, result }) {
+AfterStep({ tags: "@ui or @mobile" }, async function ({ pickleStep, result }) {
   if (result?.status === "FAILED") {
     await takeScreenshot(this.page, this.attach);
-    //await takeScreenshotFile(this.page);
   }
 
 });
@@ -76,11 +95,10 @@ async function takeScreenshot(page, attach) {
   const screenshot = await page.screenshot();
   await attach(screenshot, "image/png"); // 👈 attach in HTML report
 
+  //Save screenshot in a file
+  //const filePath = `screenshots/${Date.now()}.png`; // 👈 Save in file
+  //await page.screenshot({ path: filePath });
+  //console.log("Screenshot file:", filePath);
+
 }
 
-async function takeScreenshotFile(page) {
-
-  const filePath = `screenshots/${Date.now()}.png`; // 👈 Save in file
-  await page.screenshot({ path: filePath });
-  console.log("Screenshot file:", filePath);
-}

@@ -25,11 +25,11 @@ export class DBLogger {
 
 
     //save to folder in addition to folder db-logs with timestamp
-    this.requestsDir = path.join(process.cwd(), "db-logs");
-    if (!fs.existsSync(this.requestsDir)) {
-        fs.mkdirSync(this.requestsDir, { recursive: true });
-    }
-    const filePath = `db-logs/${Date.now()}.txt`;
-    fs.writeFileSync(filePath, log, "utf-8");
+    //this.requestsDir = path.join(process.cwd(), "db-logs");
+    //if (!fs.existsSync(this.requestsDir)) {
+    //    fs.mkdirSync(this.requestsDir, { recursive: true });
+    //}
+    //const filePath = `db-logs/${Date.now()}.txt`;
+    //fs.writeFileSync(filePath, log, "utf-8");
   }
 }
