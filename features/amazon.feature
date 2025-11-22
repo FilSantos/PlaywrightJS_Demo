@@ -1,4 +1,4 @@
-@ui @amazon
+@ui @TC_amazon
 Feature: Amazon E-commerce Product Search
 
   Background: Open Browser
