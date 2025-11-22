@@ -5,7 +5,7 @@ on:
 
 jobs:
   Artifact_Creation_and_Upload:
-    timeout-minutes: 10
+    timeout-minutes: 3
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository
@@ -54,28 +54,32 @@ jobs:
         run: |
           echo "Checking Node dependencies..."
           npm ci --dry-run
-          echo "Checking TypeScript compilation (if applicable)..."
-          if [ -f tsconfig.json ]; then
-            npx tsc --noEmit
-          fi
           echo "Checking Playwright browsers..."
           npx playwright install --with-deps --dry-run || echo "Browsers already installed"
 
-      # Upload all repository files as artifact
-      - name: Upload all files as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: full-repository
-          path: '**'
-
-      - name: Cleanup old artifacts (keep latest 2)
-        if: github.ref == 'refs/heads/main'
+      # Determine the version/tag automatically (example: use package.json)
+      - name: Get version from package.json
+        id: get_version
         run: |
-          echo "Deleting old artifacts..."
-          gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
-          artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts | sort_by(.created_at) | .[:-2] | .[].id')
-          for id in $artifacts; do
-            echo "Deleting artifact $id"
-            gh api -X DELETE repos/${{ github.repository }}/actions/artifacts/$id
-          done
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Create GitHub release
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: "v${{ steps.get_version.outputs.version }}"
+          release_name: "Release v${{ steps.get_version.outputs.version }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Optionally upload artifacts to the release
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: "**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

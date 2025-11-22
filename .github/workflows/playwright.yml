@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    timeout-minutes: 10
+    timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
@@ -67,3 +67,14 @@ jobs:
         name: JUnit Tests
       if: always()
 
+    # Upload all repository files as artifact
+    - name: Upload all artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: full-artifacts
+        path: |
+          db-logs/**
+          reports/**
+          requests/**
+          videos/**
+        retention-days: 30
