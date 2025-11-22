@@ -59,9 +59,11 @@ jobs:
           npx cucumber-js
         fi
 
-    - name: Publish JUnit Report
-      uses: mikepenz/action-junit-report@v5
-      if: always()
+    - name: Report Tests
+      uses: dorny/test-reporter@v2
       with:
-        report_paths: 'reports/junit-results.xml'
-        token: ${{ github.token }}
+        reporter: java-junit
+        path: 'reports/junit-results.xml'
+        name: JUnit Tests
+      if: always()
+
