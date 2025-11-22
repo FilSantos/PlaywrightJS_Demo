@@ -1,9 +1,14 @@
 name: Execute Tests
 
 on:
-  workflow_dispatch: # on demand trigger
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to execute tests on'
+        required: false
+        default: main
   schedule:
-    - cron: '0 0 */10 * *'  # every 10 days midight UTC
+    - cron: '0 0 */10 * *'  # every 10 days midnight UTC
 
 jobs:
   run-tests:
@@ -13,8 +18,8 @@ jobs:
       - name: Checkout latest code
         uses: actions/checkout@v5
         with:
-          ref: main
-          fetch-depth: 1  # last commit only
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || 'main' }}
+          fetch-depth: 1
 
       - uses: actions/setup-node@v5
         with:
@@ -49,7 +54,6 @@ jobs:
             echo "Playwright cache restored, skipping install"
           fi
 
-      # Run tests excluding @debug
       - name: Execute Playwright tests
         run: npx cucumber-js --tags "not @debug"
 
