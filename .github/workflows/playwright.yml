@@ -4,6 +4,8 @@ on:
     branches: [ develop ]
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: '0 0 */10 * *' # every 10 days
 
 jobs:
   test:
@@ -16,7 +18,7 @@ jobs:
       with:
         node-version: lts/*
 
-    # Cache do NPM
+    # NPM Cache to speed up installs
     - name: Cache NPM dependencies
       uses: actions/cache@v3
       with:
@@ -27,12 +29,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-
 
-    # Instala dependências apenas se não tiver cache
+    # Install dependencies only if not in cache
     - name: Install dependencies
       run: npm ci
 
-
-    # Cache dos browsers do Playwright
+    # Load Browsers cache from Playwright
     - name: Cache Playwright browsers
       uses: actions/cache@v3
       with:
@@ -41,7 +42,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-playwright-
 
-    # Instala browsers apenas se não tiver cache
+    # Install browsers only if not in cache
     - name: Install Playwright Browsers
       run: |
         if [ ! -d "~/.cache/ms-playwright" ]; then
@@ -50,23 +51,17 @@ jobs:
           echo "Playwright cache restored, skipping install"
         fi
 
-    - name: Run Playwright tests on develop
-      if: github.ref == 'refs/heads/develop'
-      run: npx cucumber-js --tags "@debug"
+    - name: Run Playwright tests
+      run: |
+        if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+          npx cucumber-js --tags "@debug"
+        else
+          npx cucumber-js
+        fi
 
-    - name: Run Playwright tests on main
-      if: github.ref == 'refs/heads/main'
-      run: npx cucumber-js
-
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
+    - name: Publish JUnit test results
+      uses: actions/upload-test-report@v3
       with:
-        name: playwright-report
-        path: reports/
-        retention-days: 30
-
-    - name: Upload JUnit report
-      uses: actions/upload-artifact@v4
-      with:
-        name: cucumber-junit-report
-        path: reports/junit-results.xml
+        test-results-format: 'JUnit'
+        test-results-files: 'reports/junit-results.xml'
+        merge-test-results: true 
