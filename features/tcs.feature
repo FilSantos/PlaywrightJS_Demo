@@ -6,7 +6,7 @@ Feature: Open TCS homepage
     Given I open "TCS" homepage
     Then the page title should contain "Tata Consultancy Services"
 
-  @TC_pwc
+  @TC_pwc @debug
   Scenario: Open Tata Consultancy Services landing page and verify PwC in title wrongly
     Given I open "TCS" homepage
     Then the page title should contain "PwC"
