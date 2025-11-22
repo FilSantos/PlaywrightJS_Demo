@@ -1,0 +1,81 @@
+name: Artifact Creation and Upload
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  Artifact_Creation_and_Upload:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v5
+
+      # Setup Node.js
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+
+      # Cache NPM dependencies
+      - name: Cache NPM dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # Cache Playwright browsers
+      - name: Cache Playwright browsers
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      # Install Playwright browsers if not cached
+      - name: Install Playwright browsers
+        run: |
+          if [ ! -d "~/.cache/ms-playwright" ]; then
+            npx playwright install --with-deps
+          else
+            echo "Playwright cache restored, skipping installation"
+          fi
+
+      # Dry run - check compilation
+      - name: Dry run - check compilation
+        run: |
+          echo "Checking Node dependencies..."
+          npm ci --dry-run
+          echo "Checking TypeScript compilation (if applicable)..."
+          if [ -f tsconfig.json ]; then
+            npx tsc --noEmit
+          fi
+          echo "Checking Playwright browsers..."
+          npx playwright install --with-deps --dry-run || echo "Browsers already installed"
+
+      # Upload all repository files as artifact
+      - name: Upload all files as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-repository
+          path: '**'
+
+      - name: Cleanup old artifacts (keep latest 2)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Deleting old artifacts..."
+          gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+          artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts | sort_by(.created_at) | .[:-2] | .[].id')
+          for id in $artifacts; do
+            echo "Deleting artifact $id"
+            gh api -X DELETE repos/${{ github.repository }}/actions/artifacts/$id
+          done
+

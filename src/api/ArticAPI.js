@@ -1,4 +1,4 @@
-import { ApiLogger } from "../support/ApiLogger.js";
+import { ApiLogger } from "../helper/apiLogger.js";
 
 export class ArticAPI {
   constructor(api, attach) {
