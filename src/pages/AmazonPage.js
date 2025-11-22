@@ -1,4 +1,4 @@
-export class AmazonSearchPage {
+export class AmazonPage {
   constructor(page) {
     this.page = page;
   }

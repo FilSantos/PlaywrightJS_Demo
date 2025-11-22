@@ -7,6 +7,7 @@ export class CustomWorld extends World {
     this.context = null;
     this.page = null;
     this.amazon = null;
+    this.tcs = null;
     this.api = null;
   }
 }
