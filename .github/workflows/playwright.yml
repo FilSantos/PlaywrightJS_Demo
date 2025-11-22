@@ -50,8 +50,13 @@ jobs:
           echo "Playwright cache restored, skipping install"
         fi
 
-    - name: Run Playwright tests
+    - name: Run Playwright tests on develop
+      if: github.ref == 'refs/heads/develop'
       run: npx cucumber-js --tags "@debug"
+
+    - name: Run Playwright tests on main
+      if: github.ref == 'refs/heads/main'
+      run: npx cucumber-js
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
