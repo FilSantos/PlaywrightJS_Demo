@@ -4,21 +4,59 @@ on:
     branches: [ develop ]
   pull_request:
     branches: [ main ]
+
 jobs:
   test:
-    timeout-minutes: 1
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
+
     - uses: actions/setup-node@v5
       with:
         node-version: lts/*
+
+    # Cache do NPM
+    - name: Cache NPM dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.npm
+          node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    # Instala dependências apenas se não tiver cache
     - name: Install dependencies
-      run: npm ci
+      run: |
+        if [ ! -d "node_modules" ]; then
+          npm ci
+        else
+          echo "Node modules cache restored, skipping npm ci"
+        fi
+
+    # Cache dos browsers do Playwright
+    - name: Cache Playwright browsers
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-playwright-
+
+    # Instala browsers apenas se não tiver cache
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      run: |
+        if [ ! -d "~/.cache/ms-playwright" ]; then
+          npx playwright install --with-deps
+        else
+          echo "Playwright cache restored, skipping install"
+        fi
+
     - name: Run Playwright tests
-      run: npx playwright test
+      run: npx cucumber-js --tags "@api"
+
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
